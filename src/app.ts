@@ -3,14 +3,14 @@ import express, {
   type Request,
   type Response,
 } from "express";
-import { userRouter } from "./modules/user/user.route";
+import { authRouter } from "./modules/auth/auth.route";
 
 const app: Application = express();
 
 /* middleware */
 app.use(express.json());
 
-app.use("/api/users", userRouter);
+app.use("/api/auth", authRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
