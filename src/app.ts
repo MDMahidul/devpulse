@@ -4,6 +4,7 @@ import express, {
   type Response,
 } from "express";
 import { authRouter } from "./modules/auth/auth.route";
+import { issueRouter } from "./modules/issue/issue.route";
 
 const app: Application = express();
 
@@ -11,6 +12,7 @@ const app: Application = express();
 app.use(express.json());
 
 app.use("/api/auth", authRouter);
+app.use("/api/issues", issueRouter);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
