@@ -35,4 +35,35 @@ const postIssue = async (req: Request, res: Response) => {
   }
 };
 
-export const issueController = { postIssue };
+const getAllIssues = async (req: Request, res: Response) => {
+  const { sort, type, status } = req.query;
+
+  const params = {
+    sort: sort === "oldest" ? "oldest" : "newest",
+    type: ["bug", "feature_request"].includes(type as string)
+      ? type
+      : undefined,
+    status: ["open", "in_progress", "resolved"].includes(status as string)
+      ? status
+      : undefined,
+  };
+  try {
+    const result = await issueService.getAllIssuesFromDB(params);
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "Issues retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    console.log(error);
+    sendResponse(res, {
+      statusCode: 500,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
+export const issueController = { postIssue, getAllIssues };
