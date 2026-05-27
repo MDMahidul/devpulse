@@ -1,6 +1,8 @@
 import type { Request, Response } from "express";
 import { issueService } from "./issue.service";
 import sendResponse from "../../utils/sendResponse";
+import type { IssueFilters } from "../../types";
+import { StatusCodes } from "http-status-codes";
 
 const postIssue = async (req: Request, res: Response) => {
   try {
@@ -8,7 +10,7 @@ const postIssue = async (req: Request, res: Response) => {
     console.log("userId from issue controller", userId);
     if (!userId) {
       sendResponse(res, {
-        statusCode: 401,
+        statusCode: StatusCodes.UNAUTHORIZED,
         success: false,
         message: "Unauthorized access!!!",
       });
@@ -20,14 +22,14 @@ const postIssue = async (req: Request, res: Response) => {
     const result = await issueService.postIssueIntoDB(issueData);
 
     sendResponse(res, {
-      statusCode: 201,
+      statusCode: StatusCodes.CREATED,
       success: true,
       message: "Issue created successfully",
       data: result.rows[0],
     });
   } catch (error: any) {
     sendResponse(res, {
-      statusCode: 500,
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
       error: error,
@@ -48,17 +50,18 @@ const getAllIssues = async (req: Request, res: Response) => {
       : undefined,
   };
   try {
-    const result = await issueService.getAllIssuesFromDB(params);
+    const result = await issueService.getAllIssuesFromDB(
+      params as IssueFilters,
+    );
     sendResponse(res, {
-      statusCode: 200,
+      statusCode: StatusCodes.OK,
       success: true,
       message: "Issues retrieved successfully",
       data: result,
     });
   } catch (error: any) {
-    console.log(error);
     sendResponse(res, {
-      statusCode: 500,
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
       message: error.message,
       error: error,
@@ -66,4 +69,61 @@ const getAllIssues = async (req: Request, res: Response) => {
   }
 };
 
-export const issueController = { postIssue, getAllIssues };
+const getSingleIssue = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await issueService.getSingleIssueFromDB(id as string);
+    if (!result) {
+      sendResponse(res, {
+        statusCode: StatusCodes.NOT_FOUND,
+        success: false,
+        message: "Issue Not Found!!",
+        data: {},
+      });
+    }
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Issue retrieved successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
+const deleteSingleIssue=async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await issueService.deleteSingleIssueFromDB(id as string);
+    if (result.rowCount === 0) {
+      sendResponse(res, {
+        statusCode: StatusCodes.NOT_FOUND,
+        success: false,
+        message: "Issue Not Found!!",
+        data: {},
+      });
+    }
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Issue deleted successfully",
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
+export const issueController = { postIssue, getAllIssues, getSingleIssue,deleteSingleIssue };

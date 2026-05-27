@@ -44,7 +44,7 @@ const getAllIssuesFromDB = async (params: IssueFilters) => {
 
   /* to avoid 2nd query running if empty */
   if (!issues.length) {
-    return [];
+    return null;
   }
 
   /* using set to get the unique reporter id */
@@ -72,4 +72,45 @@ const getAllIssuesFromDB = async (params: IssueFilters) => {
   return result;
 };
 
-export const issueService = { postIssueIntoDB, getAllIssuesFromDB };
+const getSingleIssueFromDB = async (id: string) => {
+  const { rows } = await pool.query(`SELECT * FROM issues WHERE id=$1`, [id]);
+  if (!rows.length) {
+    return null;
+  }
+  const issue = rows[0];
+  const { rows: reporter } = await pool.query(
+    `SELECT id, name, role FROM users WHERE id = $1`,
+    [issue.reporter_id],
+  );
+  const user = reporter[0] ?? null;
+  const result = {
+    id: issue.id,
+    title: issue.title,
+    description: issue.description,
+    type: issue.type,
+    status: issue.status || "open",
+    reporter: user
+      ? {
+          id: user.id,
+          name: user.name,
+          role: user.role,
+        }
+      : null,
+    created_at: issue.created_at,
+    updated_at: issue.updated_at,
+  };
+  return result;
+};
+
+const deleteSingleIssueFromDB = async (id: string) => {
+  const result = await pool.query(`DELETE FROM issues WHERE id = $1`, [id]);
+
+  return result;
+};
+
+export const issueService = {
+  postIssueIntoDB,
+  getAllIssuesFromDB,
+  getSingleIssueFromDB,
+  deleteSingleIssueFromDB,
+};

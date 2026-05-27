@@ -4,6 +4,7 @@ import sendResponse from "../utils/sendResponse";
 import jwt, { type JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import { pool } from "../db";
+import { StatusCodes } from "http-status-codes";
 
 const auth = (...roles: ROLES[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +12,7 @@ const auth = (...roles: ROLES[]) => {
       const token = req.headers.authorization;
       if (!token) {
         sendResponse(res, {
-          statusCode: 401,
+          statusCode: StatusCodes.UNAUTHORIZED,
           success: false,
           message: "Unauthorized access!!!",
         });
@@ -30,7 +31,7 @@ const auth = (...roles: ROLES[]) => {
 
       if (userData.rows.length === 0) {
         sendResponse(res, {
-          statusCode: 404,
+          statusCode: StatusCodes.NOT_FOUND,
           success: false,
           message: "User not found!!!",
         });
@@ -39,7 +40,7 @@ const auth = (...roles: ROLES[]) => {
       /* check roles */
       if (roles.length && !roles.includes(user.role)) {
         sendResponse(res, {
-          statusCode: 401,
+          statusCode: StatusCodes.UNAUTHORIZED,
           success: false,
           message: "Unauthorized!!!",
         });
