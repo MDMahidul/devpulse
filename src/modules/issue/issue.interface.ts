@@ -8,4 +8,6 @@ export interface IIssue {
   type: IssueType;
   status: IssueStatus;
   reporter_id: number;
+  created_at?: Date;
+  updated_at?: Date;
 }
