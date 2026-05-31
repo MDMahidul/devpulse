@@ -7,7 +7,7 @@ import { StatusCodes } from "http-status-codes";
 const postIssue = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    console.log("userId from issue controller", userId);
+   // console.log("userId from issue controller", userId);
     if (!userId) {
       sendResponse(res, {
         statusCode: StatusCodes.UNAUTHORIZED,
@@ -98,7 +98,7 @@ const getSingleIssue = async (req: Request, res: Response) => {
   }
 };
 
-const deleteSingleIssue=async (req: Request, res: Response) => {
+const deleteSingleIssue = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
     const result = await issueService.deleteSingleIssueFromDB(id as string);
@@ -126,4 +126,52 @@ const deleteSingleIssue=async (req: Request, res: Response) => {
   }
 };
 
-export const issueController = { postIssue, getAllIssues, getSingleIssue,deleteSingleIssue };
+const updateIssue = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  try {
+    const result = await issueService.updateIssueIntoDB(
+      id as string,
+      req.body,
+      req.user!,
+    );
+    if (!result) {
+      sendResponse(res, {
+        statusCode: StatusCodes.NOT_FOUND,
+        success: false,
+        message: "Issue Not Found!!",
+        data: {},
+      });
+    }
+
+    if (result === "forbidden") {
+      sendResponse(res, {
+        statusCode: StatusCodes.FORBIDDEN,
+        success: false,
+        message: "Forbidden!!",
+        data: {},
+      });
+    }
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Issue updated successfully",
+      data: result,
+    });
+  } catch (error: any) {
+    sendResponse(res, {
+      statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
+      success: false,
+      message: error.message,
+      error: error,
+    });
+  }
+};
+
+export const issueController = {
+  postIssue,
+  getAllIssues,
+  getSingleIssue,
+  deleteSingleIssue,
+  updateIssue,
+};

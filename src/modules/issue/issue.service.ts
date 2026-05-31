@@ -1,3 +1,4 @@
+import type { JwtPayload } from "jsonwebtoken";
 import { pool } from "../../db";
 import type { IssueFilters } from "../../types";
 import type { IIssue } from "./issue.interface";
@@ -108,9 +109,34 @@ const deleteSingleIssueFromDB = async (id: string) => {
   return result;
 };
 
+const updateIssueIntoDB = async (
+  id: string,
+  payload: Partial<IIssue>,
+  user: JwtPayload,
+) => {
+  const { title, description, type } = payload;
+  const { rows } = await pool.query(`SELECT * FROM issues WHERE id=$1`, [id]);
+  if (!rows.length) {
+    return null;
+  }
+  if (
+    user?.role === "contributor" &&
+    (rows[0].reporter_id !== user.id || rows[0].status !== "open")
+  ) {
+    return "forbidden";
+  }
+  const result = await pool.query(
+    `UPDATE issues SET title=COALESCE($1,title),description=COALESCE($2,description),type=COALESCE($3,type) 
+        WHERE id = $4  RETURNING id, title, description, type, status, reporter_id, created_at, updated_at`,
+    [title, description, type, id],
+  );
+  return result.rows[0];
+};
+
 export const issueService = {
   postIssueIntoDB,
   getAllIssuesFromDB,
   getSingleIssueFromDB,
   deleteSingleIssueFromDB,
+  updateIssueIntoDB,
 };
