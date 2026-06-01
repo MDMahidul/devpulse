@@ -1,12 +1,12 @@
 import { pool } from "../../db";
 import bcrypt from "bcryptjs";
 import type { IUser } from "./auth.interface";
-import jwt from "jsonwebtoken";
+import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
 import config from "../../config";
 
 const createUserIntoDB = async (payload: IUser) => {
   const { name, email, password, role } = payload;
-  const hashPassword = await bcrypt.hash(password, 10);
+  const hashPassword = await bcrypt.hash(password, config.bcrypt_salt_rounds);
   const result = await pool.query(
     `
     INSERT INTO users(name, email, password, role) VALUES($1,$2,$3,COALESCE($4,'contributor')) RETURNING *
@@ -49,8 +49,8 @@ const loginUserIntoDB = async (payload: {
     email: user.email,
   };
 
-  const token = jwt.sign(jwtPayload, config.jwt_secret, {
-    expiresIn: config.access_token_duration,
+  const token = jwt.sign(jwtPayload, config.jwt_secret as string, {
+    expiresIn: "1d",
   });
 
   return { token, user };

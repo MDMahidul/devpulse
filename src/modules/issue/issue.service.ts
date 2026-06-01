@@ -37,7 +37,7 @@ const getAllIssuesFromDB = async (params: IssueFilters) => {
 
   /* query builder */
   const conditions: string[] = [];
-  const filters: any[] = [];
+  const filters: string[] = [];
 
   if (type) {
     filters.push(type);

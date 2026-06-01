@@ -9,6 +9,7 @@ const config = {
   connection_string: process.env.CONNECTION_STRING as string,
   jwt_secret: process.env.JWT_SECRET as string,
   access_token_duration: process.env.ACCESS_TOKEN_DURATION as string,
+  bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS as string,
 };
 
 export default config;
