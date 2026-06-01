@@ -13,11 +13,12 @@ const registerUser = async (req: Request, res: Response) => {
       message: "User registered successfully",
       data: result.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }
@@ -32,11 +33,12 @@ const loginUser = async (req: Request, res: Response) => {
       message: "Login successful",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message:
+        error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }

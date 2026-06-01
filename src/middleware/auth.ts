@@ -49,7 +49,7 @@ const auth = (...roles: ROLES[]) => {
       req.user = decoded;
 
       next();
-    } catch (error: any) {
+    } catch (error: unknown) {
       next(error);
     }
   };

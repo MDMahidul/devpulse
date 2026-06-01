@@ -25,7 +25,8 @@ var config = {
   port: process.env.PORT,
   connection_string: process.env.CONNECTION_STRING,
   jwt_secret: process.env.JWT_SECRET,
-  access_token_duration: process.env.ACCESS_TOKEN_DURATION
+  access_token_duration: process.env.ACCESS_TOKEN_DURATION,
+  bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS
 };
 var config_default = config;
 
@@ -68,7 +69,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 var createUserIntoDB = async (payload) => {
   const { name, email, password, role } = payload;
-  const hashPassword = await bcrypt.hash(password, config.bcrypt_salt_rounds);
+  const hashPassword = await bcrypt.hash(password, config_default.bcrypt_salt_rounds);
   const result = await pool.query(
     `
     INSERT INTO users(name, email, password, role) VALUES($1,$2,$3,COALESCE($4,'contributor')) RETURNING *
@@ -134,7 +135,7 @@ var registerUser = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -152,7 +153,7 @@ var loginUser = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -300,7 +301,7 @@ var postIssue = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes2.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -326,7 +327,7 @@ var getAllIssues = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes2.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -353,7 +354,7 @@ var getSingleIssue = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes2.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -379,7 +380,7 @@ var deleteSingleIssue = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes2.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }
@@ -418,7 +419,7 @@ var updateIssue = async (req, res) => {
     sendResponse_default(res, {
       statusCode: StatusCodes2.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error
     });
   }

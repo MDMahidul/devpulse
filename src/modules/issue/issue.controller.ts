@@ -27,11 +27,11 @@ const postIssue = async (req: Request, res: Response) => {
       message: "Issue created successfully",
       data: result.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }
@@ -59,11 +59,11 @@ const getAllIssues = async (req: Request, res: Response) => {
       message: "Issues retrieved successfully",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }
@@ -88,11 +88,11 @@ const getSingleIssue = async (req: Request, res: Response) => {
       message: "Issue retrieved successfully",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }
@@ -116,11 +116,11 @@ const deleteSingleIssue = async (req: Request, res: Response) => {
       success: true,
       message: "Issue deleted successfully",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }
@@ -158,11 +158,11 @@ const updateIssue = async (req: Request, res: Response) => {
       message: "Issue updated successfully",
       data: result,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     sendResponse(res, {
       statusCode: StatusCodes.INTERNAL_SERVER_ERROR,
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "An unexpected error occurred",
       error: error,
     });
   }

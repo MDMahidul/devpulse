@@ -9,6 +9,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Configuration](#configuration)
+  - [Database Setup](#databas-setup)
   - [Running the Server](#running-the-server)
 - [API Endpoints](#api-endpoints)
   - [Auth](#user)
@@ -23,11 +24,13 @@ A collaborative platform for software teams to report bugs, suggest features, an
 ## Features
 
 - **Authentication & Authorization**
+
   - User registration with role-based access (contributor/maintainer)
   - Secure JWT-based authentication
   - Password hashing with bcrypt (10-12 salt rounds)
 
 - **Issue Management**
+
   - Create bug reports and feature requests
   - View all issues with sorting and filtering
   - Update issue details (title, description, type)
@@ -42,9 +45,9 @@ A collaborative platform for software teams to report bugs, suggest features, an
 
 - Node.js
 - Express.js
-- PostgreSQL 
+- PostgreSQL
 - pg
-- dotenv 
+- dotenv
 - TypeScript
 - JWT (JSON Web Tokens) for authentication
 - HTTP Status for status code
@@ -55,7 +58,7 @@ A collaborative platform for software teams to report bugs, suggest features, an
 ### Prerequisites
 
 - Node.js (v24 or higher)
-- PostgreSQL database (local, NeonDB)
+- PostgreSQL database (local, NeonDB, Supabase, or ElephantSQL)
 - npm package manager
 - Git
 
@@ -86,6 +89,35 @@ JWT_SECRET= jwt_secret
 
 ```
 
+### Database Setup
+
+Run the following SQL commands to create and configure the database:
+
+```bash
+// Create users table
+  CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(50),
+      email VARCHAR(50) UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      role VARCHAR(25) DEFAULT 'contributor',
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+  )
+
+// Create issues table
+  CREATE TABLE IF NOT EXISTS issues (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    type VARCHAR(20) NOT NULL,
+    status VARCHAR(20) DEFAULT 'open',
+    reporter_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+  )
+```
+
 ### Running the server
 
 To start the server in development mode:
@@ -110,25 +142,25 @@ npm run start:prod
   - **Request Body**:
     ```json
     {
-        "name": "John Doe",
-        "email": "john.doe@devpulse.com",
-        "password": "securePassword123",
-        "role": "contributor"
+      "name": "John Doe",
+      "email": "john.doe@devpulse.com",
+      "password": "securePassword123",
+      "role": "contributor"
     }
     ```
   - **Response**:
     ```json
     {
-        "success": true,
-        "message": "User registered successfully",
-        "data": {
-            "id": 1,
-            "name": "John Doe",
-            "email": "john.doe@devpulse.com",
-            "role": "contributor",
-            "created_at": "2026-01-20T09:00:00Z",
-            "updated_at": "2026-01-20T09:00:00Z"
-        }
+      "success": true,
+      "message": "User registered successfully",
+      "data": {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@devpulse.com",
+        "role": "contributor",
+        "created_at": "2026-01-20T09:00:00Z",
+        "updated_at": "2026-01-20T09:00:00Z"
+      }
     }
     ```
 
@@ -137,26 +169,26 @@ npm run start:prod
   - **Request Body**:
     ```json
     {
-        "email": "john.doe@devpulse.com",
-        "password": "securePassword123"
+      "email": "john.doe@devpulse.com",
+      "password": "securePassword123"
     }
     ```
   - **Response**: jwt token will be generate after successfully login
     ```json
     {
-        "success": true,
-        "message": "Login successful",
-        "data": {
-            "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-            "user": {
-            "id": 1,
-            "name": "John Doe",
-            "email": "john.doe@devpulse.com",
-            "role": "contributor",
-            "created_at": "2026-01-20T09:00:00Z",
-            "updated_at": "2026-01-20T09:00:00Z"
-            }
+      "success": true,
+      "message": "Login successful",
+      "data": {
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "user": {
+          "id": 1,
+          "name": "John Doe",
+          "email": "john.doe@devpulse.com",
+          "role": "contributor",
+          "created_at": "2026-01-20T09:00:00Z",
+          "updated_at": "2026-01-20T09:00:00Z"
         }
+      }
     }
     ```
 
@@ -168,26 +200,26 @@ npm run start:prod
   - **Request Body**:
     ```json
     {
-        "title": "Database connection timeout under load",
-        "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-        "type": "bug"
+      "title": "Database connection timeout under load",
+      "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
+      "type": "bug"
     }
     ```
   - **Response**:
     ```json
     {
-        "success": true,
-        "message": "Issue created successfully",
-        "data": {
-            "id": 45,
-            "title": "Database connection timeout under load",
-            "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-            "type": "bug",
-            "status": "open",
-            "reporter_id": 1,
-            "created_at": "2026-01-20T10:30:00Z",
-            "updated_at": "2026-01-20T10:30:00Z"
-        }
+      "success": true,
+      "message": "Issue created successfully",
+      "data": {
+        "id": 45,
+        "title": "Database connection timeout under load",
+        "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
+        "type": "bug",
+        "status": "open",
+        "reporter_id": 1,
+        "created_at": "2026-01-20T10:30:00Z",
+        "updated_at": "2026-01-20T10:30:00Z"
+      }
     }
     ```
 - **Get All Issues(with filters)**
@@ -197,86 +229,89 @@ npm run start:prod
 
     ```json
     {
-        "success": true,
-        "message": "Issues retrieved successfully",
-        "data": [
-            {
-                "id": 45,
-                "title": "Database connection timeout under load",
-                "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
-                "type": "bug",
-                "status": "open",
-                "reporter": {
-                    "id": 1,
-                    "name": "John Doe",
-                    "role": "contributor"
-                },
-                "created_at": "2026-01-20T10:30:00Z",
-                "updated_at": "2026-01-20T14:45:00Z"
-            }
-        ]
+      "success": true,
+      "message": "Issues retrieved successfully",
+      "data": [
+        {
+          "id": 45,
+          "title": "Database connection timeout under load",
+          "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
+          "type": "bug",
+          "status": "open",
+          "reporter": {
+            "id": 1,
+            "name": "John Doe",
+            "role": "contributor"
+          },
+          "created_at": "2026-01-20T10:30:00Z",
+          "updated_at": "2026-01-20T14:45:00Z"
+        }
+      ]
     }
-
     ```
 
-- **Update Bike (Admin Only)**
-  - **Route**: /api/bikes/:id (PUT)
-  - **Request Headers**: Authorization: Bearer jwt_token
+- **Get Single Issue**
+
+  - **Route**: /api/issues/:id (GET)
+  - **Response**:
+
+    ```json
+    {
+      "success": true,
+      "message": "Issue retrived successfully",
+      "data": {
+        "id": 45,
+        "title": "Database connection timeout under load",
+        "description": "Pool exhausts after 50+ concurrent queries, causing 500 errors",
+        "type": "bug",
+        "status": "open",
+        "reporter": {
+          "id": 1,
+          "name": "John Doe",
+          "role": "contributor"
+        },
+        "created_at": "2026-01-20T10:30:00Z",
+        "updated_at": "2026-01-20T14:45:00Z"
+      }
+    }
+    ```
+
+- **Update Issue (Maintainer (any issue) OR Contributor (own issue, only if status is open))**
+  - **Route**: /api/issues/:id (PATCH)
+  - **Request Headers**: Authorization: jwt_token
   - **Request Body**:
     ```json
     {
-      "pricePerHour": 20
+      "title": "Updated: Database pool exhaustion fix needed",
+      "description": "Updated description with reproduction steps...",
+      "type": "bug"
     }
     ```
   - **Response**:
     ```json
     {
       "success": true,
-      "statusCode": 200,
-      "message": "Bike updated successfully",
+      "message": "Issue updated successfully",
       "data": {
-        "_id": "bike_id",
-        "name": "Mountain Bike",
-        "description": "A durable mountain bike for rough terrains.",
-        "pricePerHour": 20, // Updated price per hour
-        "isAvailable": true,
-        "cc": 250,
-        "year": "2022",
-        "model": "X1",
-        "brand": "Yamaha",
-        "image": "image_link",
-        "mileage": "50",
-        "createdAt": "2024-06-10T13:26:51.289Z",
-        "updatedAt": "2024-06-10T13:26:51.289Z",
-        "__v": 0
+        "id": 45,
+        "title": "Updated: Database pool exhaustion fix needed",
+        "description": "Updated description with reproduction steps...",
+        "type": "bug",
+        "status": "in_progress",
+        "reporter_id": 1,
+        "created_at": "2026-01-20T10:30:00Z",
+        "updated_at": "2026-01-20T14:45:00Z"
       }
     }
     ```
-- **Delete Bike (Admin Only)**
-  - **Route**: /api/bikes/:id (DELETE)
-  - **Request Headers**: Authorization: Bearer jwt_token
+- **Delete Issue (Maintainer Only)**
+  - **Route**: /api/issues/:id (DELETE)
+  - **Request Headers**: Authorization: jwt_token
   - **Response**:
     ```json
     {
       "success": true,
-      "statusCode": 200,
-      "message": "Bike deleted successfully",
-      "data": {
-        "_id": "bike_id",
-        "name": "Mountain Bike",
-        "description": "A durable mountain bike for rough terrains.",
-        "pricePerHour": 20,
-        "isAvailable": false,
-        "cc": 250,
-        "year": "2022",
-        "model": "X1",
-        "brand": "Yamaha",
-        "image": "image_link",
-        "mileage": "50",
-        "createdAt": "2024-06-10T13:26:51.289Z",
-        "updatedAt": "2024-06-10T13:26:51.289Z",
-        "__v": 0
-      }
+      "message": "Issue deleted successfully"
     }
     ```
 
@@ -284,26 +319,16 @@ npm run start:prod
 
 Errors are handled using custom error classes and middleware. Common errors include:
 
-- **Not Found Route**:
-  - Implemented a global "Not Found" handler for unmatched routes. When a route is not found, it will respond with a generic message: "Not Found."
-  - **Response**:
-    `json
-{
-  "success": false,
-  "statusCode": 404,
-  "message": "Not Found"
-}
-`
 - **Authentication Middleware:**
 
-  - Implemented an Authentication Middleware to authenticate the application. Ensured that only user and admin can access their own accessible routes.
+  - Implemented an Authentication Middleware to authenticate the application. Ensured that only Maintainer and Contributor can access their own accessible routes.
   - **Response**
 
     ```json
     {
       "success": false,
       "statusCode": 401,
-      "message": "You have no access to this route"
+      "message": "Unauthorized access!!!"
     }
     ```
 
@@ -314,17 +339,14 @@ Errors are handled using custom error classes and middleware. Common errors incl
     ```json
     {
       "success": false,
-      "message": "Duplicate Data found!",
-      "errorMessages": [
-        {
-          "path": "",
-          "message": "mahi@example.com is already exist"
-        }
-      ],
-      "stack": "error stack"
+      "message": "invalid signature",
+      "error": {
+        "name": "JsonWebTokenError",
+        "message": "invalid signature"
+      }
     }
     ```
-    
+
 ### Live Link
 
 Click here: [Dev Pulse](https://dev-pulse-six-wheat.vercel.app/)
